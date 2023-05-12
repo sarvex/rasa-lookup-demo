@@ -39,9 +39,7 @@ def train_model(td_file, config_file, model_dir):
     td = load_data(td_file)
     trainer = Trainer(config.load(config_file))
     trainer.train(td)
-    model_loc = trainer.persist(model_dir)
-
-    return model_loc
+    return trainer.persist(model_dir)
 
 
 def train_test(td_file, config_file, model_dir, key="company", noise=0.1):
@@ -77,8 +75,7 @@ def add_noise(td, key, noise=0.2):
                             new_value[i] = random.choice(string.ascii_lowercase)
                     new_value = "".join(new_value)
                     e["value"] = new_value
-                    old_text = ex.as_dict()["text"]
-                    if old_text:
+                    if old_text := ex.as_dict()["text"]:
                         new_text = list(old_text)
                         new_text[e["start"] : e["end"] + 1] = new_value
                         new_value = "".join(new_text)
@@ -131,8 +128,7 @@ def run_demo(key, noise=0.1):
     print("running both...")
     train_test(td_both, config_file, model_dir, noise=noise)
 
-    metric_list = strip_metrics(key)
-    return metric_list
+    return strip_metrics(key)
 
 
 def parse_metrics(match, key):
@@ -140,8 +136,7 @@ def parse_metrics(match, key):
     elements = match.split(" ")[1:]
     elements = filter(lambda x: len(x) > 2, elements)
     elements = [float(e) for e in elements]
-    metrics = dict(zip(["key", "precision", "recall", "f1"], [key] + elements))
-    return metrics
+    return dict(zip(["key", "precision", "recall", "f1"], [key] + elements))
 
 
 def strip_metrics(key):
@@ -150,32 +145,28 @@ def strip_metrics(key):
     stream_literal = repr(stream_string)
     p_re = re.compile(key + "[ ]+\d.\d\d[ ]+\d.\d\d[ ]+\d.\d\d")
     matches = p_re.findall(stream_literal)
-    metric_list = [parse_metrics(m, key) for m in matches]
-    return metric_list
+    return [parse_metrics(m, key) for m in matches]
 
 
 def print_metrics(metric_list):
     """Prints the metrics for each training data"""
-    if metric_list:
-        key = metric_list[-4]["key"]
-        print("before adding lookup table(s), demo '{}' had:".format(key))
-        display_metrics(metric_list[-4])
-        print("after adding lookup table(s),  demo '{}' had:".format(key))
-        display_metrics(metric_list[-3])
-        print("after adding ngrams,  demo '{}' had:".format(key))
-        display_metrics(metric_list[-2])
-        print(
-            "after adding both lookup table(s) and ngrams,  demo '{}' had:".format(key)
-        )
-        display_metrics(metric_list[-1])
-    else:
+    if not metric_list:
         raise ValueError("metrics were not parsed correctly.")
+    key = metric_list[-4]["key"]
+    print(f"before adding lookup table(s), demo '{key}' had:")
+    display_metrics(metric_list[-4])
+    print(f"after adding lookup table(s),  demo '{key}' had:")
+    display_metrics(metric_list[-3])
+    print(f"after adding ngrams,  demo '{key}' had:")
+    display_metrics(metric_list[-2])
+    print(f"after adding both lookup table(s) and ngrams,  demo '{key}' had:")
+    display_metrics(metric_list[-1])
 
 
 def display_metrics(metrics):
     """Prints the metrics"""
     for key, val in metrics.items():
-        print("\t{}:\t{}".format(key, val))
+        print(f"\t{key}:\t{val}")
 
 
 if __name__ == "__main__":
@@ -209,8 +200,8 @@ if __name__ == "__main__":
 
         for noise in noises:
 
-            print("working on run {} of {}".format(count, N_avg * N_noise))
-            print("    noise = {}".format(noise))
+            print(f"working on run {count} of {N_avg * N_noise}")
+            print(f"    noise = {noise}")
 
             count += 1
 
@@ -221,8 +212,7 @@ if __name__ == "__main__":
             for i, e in enumerate(cases):
                 f1s[e][avg_index].append(metric_list[-4 + i]["f1"])
 
-    for case, f1_list in f1s.items():
-
+    for f1_list in f1s.values():
         # compute the average over all runs for each noise level
         f1s_T = list(map(list, zip(*f1_list)))
         avgs = [sum(f) / N_avg for f in f1s_T]

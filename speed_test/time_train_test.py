@@ -63,9 +63,10 @@ def evaluate_model():
     # evaluates a model and times it
     model_name = os.listdir("./tmp/models/default")[0]  # get first (and only) model
     t = time()
-    evaluate.run_evaluation("data/demo_test.md", "./tmp/models/default/" + model_name)
-    eval_time = time() - t
-    return eval_time
+    evaluate.run_evaluation(
+        "data/demo_test.md", f"./tmp/models/default/{model_name}"
+    )
+    return time() - t
 
 
 def plot_results(
@@ -128,13 +129,13 @@ def print_stats(
 ):
 
     print("{0:.2f} % done".format((count + 1) / len(num_words_list) * 100))
-    print("with {} words in lookup table:".format(num_words))
-    print("    took {} sec. to construct lookup table".format(lookup_construct_time))
-    print("    took {} sec. to load training data".format(td_load_time))
-    print("    took {} sec. to train model".format(train_time))
-    print("    took {} sec. to perist model".format(persist_time))
-    print("    took {} sec. to evaluate on test set".format(eval_time))
-    print("    took {} sec. total".format(total_time))
+    print(f"with {num_words} words in lookup table:")
+    print(f"    took {lookup_construct_time} sec. to construct lookup table")
+    print(f"    took {td_load_time} sec. to load training data")
+    print(f"    took {train_time} sec. to train model")
+    print(f"    took {persist_time} sec. to perist model")
+    print(f"    took {eval_time} sec. to evaluate on test set")
+    print(f"    took {total_time} sec. total")
 
 
 if __name__ == "__main__":
@@ -147,9 +148,7 @@ if __name__ == "__main__":
 
     # integerize and uniquify this
     num_words_list = [int(num_word_distribution[i]) for i in range(N)]
-    num_words_list = list(set(num_words_list))
-    num_words_list.sort()
-
+    num_words_list = sorted(set(num_words_list))
     t_train = []
     t_eval = []
     t_total = []
