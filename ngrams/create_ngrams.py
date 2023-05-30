@@ -12,15 +12,13 @@ import cloudpickle
 
 
 def load_file(fname="data/combined_new.csv"):
-    print("\nloading file {}...".format(fname))
+    print(f"\nloading file {fname}...")
     df = pd.read_csv(fname, sep=",", names=["word", "label"])
     total_examples = len(df)
     street_examples = len(df[df.label == 1])
     print(df.head())
     print(
-        "we have {} company examples out of {} total examples".format(
-            street_examples, total_examples
-        )
+        f"we have {street_examples} company examples out of {total_examples} total examples"
     )
     return df
 
@@ -49,21 +47,21 @@ def transorm_ngrams(df_x, x_train, x_test):
 
 def get_features(X_train, y_train, names, selection_threshold=0.2):
     print("\ngetting features with randomized logistic regression...")
-    print("using a selection threshold of {}".format(selection_threshold))
+    print(f"using a selection threshold of {selection_threshold}")
     randomized_logistic = RandomizedLogisticRegression(
         selection_threshold=selection_threshold
     )
     randomized_logistic.fit(X_train, y_train)
     mask = randomized_logistic.get_support()
     features = np.array(names)[mask]
-    print("found {} ngrams:".format(len([f for f in features])))
-    print([f for f in features])
+    print(f"found {len(list(features))} ngrams:")
+    print(list(features))
     return features
 
 
 def run_logreg(X_train, y_train, selection_threshold=0.2):
     print("\nrunning logistic regression...")
-    print("using a selection threshold of {}".format(selection_threshold))
+    print(f"using a selection threshold of {selection_threshold}")
     pipe = Pipeline(
         [
             (
@@ -74,8 +72,8 @@ def run_logreg(X_train, y_train, selection_threshold=0.2):
         ]
     )
     pipe.fit(X_train, y_train)
-    print("training accuracy : {}".format(pipe.score(X_train, y_train)))
-    print("testing accuracy : {}".format(pipe.score(X_test, y_test)))
+    print(f"training accuracy : {pipe.score(X_train, y_train)}")
+    print(f"testing accuracy : {pipe.score(X_test, y_test)}")
     return pipe
 
 
@@ -87,17 +85,17 @@ def get_pos_neg(
     cutoff=0.5,
 ):
     print("\nseparating into positive and negative ngrams...")
-    print("using a cutoff of {}".format(cutoff))
+    print(f"using a cutoff of {cutoff}")
     params = pipe.get_params()
     logistic = params["classification"]
     coeffs = logistic.coef_[0]
-    coef_dict = {f: c for f, c in zip(features, coeffs)}
+    coef_dict = dict(zip(features, coeffs))
     positive_features = [f for f, c in coef_dict.items() if abs(c) > cutoff and c > 0]
     negative_features = [f for f, c in coef_dict.items() if abs(c) > cutoff and c < 0]
-    print("positive ngrams : {}\n{}".format(len(positive_features), positive_features))
+    print(f"positive ngrams : {len(positive_features)}\n{positive_features}")
     print("")
-    print("negative ngrams : {}\n{}".format(len(negative_features), negative_features))
-    print("writing to files {} and {}".format(f_pos, f_neg))
+    print(f"negative ngrams : {len(negative_features)}\n{negative_features}")
+    print(f"writing to files {f_pos} and {f_neg}")
     with open(f_pos, "w") as f:
         f.write("\n".join([str(feat) for feat in positive_features]))
     with open(f_neg, "w") as f:

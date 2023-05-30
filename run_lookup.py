@@ -37,10 +37,7 @@ def train_model(td_file, config_file, model_dir):
     trainer = Trainer(config.load(config_file))
     trainer.train(td)
 
-    # creates model and returns the path to this model for evaluation
-    model_loc = trainer.persist(model_dir)
-
-    return model_loc
+    return trainer.persist(model_dir)
 
 
 def train_test(td_file, config_file, model_dir):
@@ -133,8 +130,7 @@ def parse_metrics(match, key):
     elements = match.split(" ")[1:]
     elements = filter(lambda x: len(x) > 2, elements)
     elements = [float(e) for e in elements]
-    metrics = dict(zip(["key", "precision", "recall", "f1"], [key] + elements))
-    return metrics
+    return dict(zip(["key", "precision", "recall", "f1"], [key] + elements))
 
 
 def strip_metrics(key):
@@ -144,19 +140,18 @@ def strip_metrics(key):
     stream_literal = repr(stream_string)
     p_re = re.compile(key + "[ ]+\d.\d\d[ ]+\d.\d\d[ ]+\d.\d\d")
     matches = p_re.findall(stream_literal)
-    metric_list = [parse_metrics(m, key) for m in matches]
-    return metric_list
+    return [parse_metrics(m, key) for m in matches]
 
 
 def print_metrics(metric_list):
     # prints out the demo preformance
 
     key = metric_list[0]["key"]
-    print("baseline, demo '{}' had:".format(key))
+    print(f"baseline, demo '{key}' had:")
     display_metrics(metric_list[0])
-    print("before adding lookup table(s), demo '{}' had:".format(key))
+    print(f"before adding lookup table(s), demo '{key}' had:")
     display_metrics(metric_list[1])
-    print("after adding lookup table(s),  demo '{}' had:".format(key))
+    print(f"after adding lookup table(s),  demo '{key}' had:")
     display_metrics(metric_list[2])
 
 
@@ -164,7 +159,7 @@ def display_metrics(metrics):
     # helper function for print_metrics
 
     for key, val in metrics.items():
-        print("\t{}:\t{}".format(key, val))
+        print(f"\t{key}:\t{val}")
 
 
 def plot_metrics(metric_list, save_path=None):
@@ -180,7 +175,7 @@ def plot_metrics(metric_list, save_path=None):
     bar_metrics(metric_list[2], ax1, index=2)
 
     if save_path is None:
-        save_path = "img/bar_" + key + ".png"
+        save_path = f"img/bar_{key}.png"
 
     plt.savefig(save_path, dpi=400)
 

@@ -10,17 +10,17 @@ any startups that have names that are also scrabble words
 
 def open_data(filename):
     out_list = []
-    print("loading data from {}".format(filename))
+    print(f"loading data from {filename}")
     with open(filename, "rt") as f:
         reader = csv.reader(f)
         for row in reader:
             out_list += row
-    print("found {} elements".format(len(out_list)))
+    print(f"found {len(out_list)} elements")
     return out_list
 
 
 def write_data(filename, filtered_startups):
-    print("writing that to file at : {}".format(filename))
+    print(f"writing that to file at : {filename}")
     with open(filename, "w") as f:
         writer = csv.writer(f, lineterminator="\n")
         writer.writerows([filtered_startups])
@@ -31,19 +31,15 @@ def filter_list(in_list: Tuple, scrabble_set: Set):
     for i, s in enumerate(in_list):
         if i % 100 == 0:
             print(
-                "percent done: {} % \t  elements removed: {}".format(
-                    int(1000 * i / len(in_list)) / 10, i - len(filtered_list)
-                )
+                f"percent done: {int(1000 * i / len(in_list)) / 10} % \t  elements removed: {i - len(filtered_list)}"
             )
         if s.lower() not in scrabble_set:
             words = s.split(" ")
-            if any([word.lower() not in scrabble_set for word in words]):
+            if any(word.lower() not in scrabble_set for word in words):
                 filtered_list.add(s)
     filtered_list = list(filtered_list)
     print(
-        "now have {} elements, removed {}".format(
-            len(filtered_list), len(in_list) - len(filtered_list)
-        )
+        f"now have {len(filtered_list)} elements, removed {len(in_list) - len(filtered_list)}"
     )
     return filtered_list
 

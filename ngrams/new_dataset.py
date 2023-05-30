@@ -7,7 +7,7 @@ import numpy as np
 def load_dataset(fname):
     company_df = pd.read_csv(fname)
     num_open_addr = len(company_df.index)
-    print("{} addresses in dataset {}".format(num_open_addr, fname))
+    print(f"{num_open_addr} addresses in dataset {fname}")
     return company_df
 
 
@@ -45,13 +45,14 @@ if __name__ == "__main__":
     count = 0
     while count < num_elements:
         ws = randint(1, num_words)
-        new_words = []
-        for i in range(count, count + ws):
-            new_words.append(str(other_df_copy.at[i, "element"]))
+        new_words = [
+            str(other_df_copy.at[i, "element"])
+            for i in range(count, count + ws)
+        ]
         count += 1
         other_df = other_df.append({"element": " ".join(new_words)}, ignore_index=True)
         if count % 1000 == 0:
-            print("wrote {} of {} examples".format(count, num_elements))
+            print(f"wrote {count} of {num_elements} examples")
 
     # label elements
     company_df["label"] = 1
@@ -59,10 +60,10 @@ if __name__ == "__main__":
 
     # concatenate all datasets
     print("combining datasets")
-    print("\tother dataset has {} examples".format(len(other_df.index)))
-    print("\tcompany dataset has {} examples".format(len(company_df.index)))
+    print(f"\tother dataset has {len(other_df.index)} examples")
+    print(f"\tcompany dataset has {len(company_df.index)} examples")
     company_df = company_df.sample(frac=1)
-    print("\twhich was reduced to {} examples".format(len(company_df.index)))
+    print(f"\twhich was reduced to {len(company_df.index)} examples")
 
     combined_df = pd.concat([company_df, other_df])
 

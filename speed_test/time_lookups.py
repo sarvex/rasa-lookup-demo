@@ -17,9 +17,7 @@ end_pow = 7.0  # 10^end_pow    is last point
 
 num_word_distribution = np.logspace(start_pow, end_pow, num=N)
 num_words_list = [int(num_word_distribution[i]) for i in range(N)]
-num_words_list = list(set(num_words_list))
-num_words_list.sort()
-
+num_words_list = sorted(set(num_words_list))
 t_train = []
 t_eval = []
 t_total = []
